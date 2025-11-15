@@ -7,9 +7,18 @@ import FavoritesTab from './FavoritesTab';
 import AboutTab from './AboutTab';
 import { FavoritesProvider } from './FavoritesContext';
 
+import { useColorScheme } from 'react-native';
+
+// const scheme = useColorScheme();
+
+// const isDarkMode = scheme === 'dark';
+
 const Tab = createBottomTabNavigator();
 
 function App() {
+  const scheme = useColorScheme();
+  const isDarkMode = scheme === 'dark';
+
   return (
     <FavoritesProvider>
       
@@ -19,10 +28,11 @@ function App() {
             tabBarActiveTintColor: '#B71C1C',
             tabBarInactiveTintColor: '#757575',
             tabBarStyle: {
-              backgroundColor: '#FFFFFF',
+              // backgroundColor: '#FFFFFF',
+              backgroundColor: isDarkMode ? '#000000ff' : '#fff',
               borderTopWidth: 1,
               borderTopColor: '#E0E0E0',
-              height: 60,
+              height: 100,
               paddingBottom: 8,
               paddingTop: 8,
             },
@@ -58,9 +68,11 @@ function App() {
                 <Ionicons name="heart" size={size} color={color} />
               ),
               headerStyle: {
-                backgroundColor: '#B71C1C',
+                // backgroundColor: '#B71C1C',
+                backgroundColor: isDarkMode ? '#000000ff' : '#B71C1C',
               },
-              headerTintColor: '#FFFFFF',
+              // headerTintColor: '#FFFFFF',
+              headerTintColor: isDarkMode ? '#ffffffff' : '#ffffffff',
             }}
           />
           <Tab.Screen
@@ -71,9 +83,10 @@ function App() {
                 <Ionicons name="information-circle" size={size} color={color} />
               ),
               headerStyle: {
-                backgroundColor: '#E65100',
+                // backgroundColor: '#B71C1C',
+                backgroundColor: isDarkMode ? '#000000ff' : '#B71C1C',
               },
-              headerTintColor: '#FFFFFF',
+              headerTintColor: isDarkMode ? '#ffffffff' : '#ffffffff',
             }}
           />
         </Tab.Navigator>

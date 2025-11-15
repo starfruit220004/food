@@ -52,3 +52,9 @@ export function useFavorites() {
   }
   return context;
 }
+
+export default FavoritesContext
+
+// git branch search_bar_filter_feature
+
+// git push origin search_bar_filter_feature

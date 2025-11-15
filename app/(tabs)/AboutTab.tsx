@@ -1,17 +1,20 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useColorScheme } from 'react-native';
 
 function AboutTab() {
+  const scheme = useColorScheme();
+    const isDarkMode = scheme === 'dark';
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={[styles.container, { backgroundColor: isDarkMode ? "#000" : "#FFEBEE" }]} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.icon}>🍱</Text>
         <Text style={styles.title}>About Foodie Journal</Text>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.description}>
+        <Text style={[styles.description, { color: isDarkMode ? "#8f675aff" : "#5D4037" }]}>
           Welcome to <Text style={styles.bold}>Foodie Journal</Text>, your personal companion for
           exploring and documenting your culinary adventures! This app helps you log meals,
           discover new dishes, and curate your collection of favorite foods.
@@ -67,8 +70,15 @@ function AboutTab() {
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Developed with ❤️ by</Text>
-        <Text style={styles.groupName}>Group 7</Text>
+        <Text style={styles.footerText}>This project is brought to you by:</Text>
+        
+
+        <View style={{ width: 60, height: 60, borderRadius: 100, marginBottom: 10 }}>
+          <Image source={require('../../assets/images/Logo.jpg')} style={{ width: '100%', height: '100%', borderRadius: 100 }} />
+        </View>
+
+        <Text style={styles.groupName}>Group 7 - GenTech</Text>
+        
       </View>
     </ScrollView>
   );
@@ -88,11 +98,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   icon: {
-    fontSize: 60,
-    marginBottom: 16,
+    fontSize: 80,
+    marginBottom: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 'bold',
     color: '#E65100',
     textAlign: 'center',
@@ -170,12 +180,14 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 14,
     color: '#6D4C41',
-    marginBottom: 8,
+    marginBottom: 10,
+    marginTop: 5,
   },
   groupName: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#E65100',
+    paddingBottom: 10,
   },
 });
 export default AboutTab;

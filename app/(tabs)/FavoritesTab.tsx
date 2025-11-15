@@ -2,8 +2,13 @@ import React from 'react';
 import {View,Text,FlatList,Image,StyleSheet,TouchableOpacity,Dimensions,} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useFavorites } from './FavoritesContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useColorScheme } from 'react-native';
 
 function FavoritesTab() {
+  const scheme = useColorScheme();
+    const isDarkMode = scheme === 'dark';
+
   const { favorites, removeFavorite } = useFavorites();
   const cardWidth = (Dimensions.get('window').width - 30) / 2;
 
@@ -22,8 +27,10 @@ function FavoritesTab() {
     );
   };
 
+  
+
   const renderItem = ({ item }: any) => (
-    <View style={[styles.card, { width: cardWidth }]}>
+    <View style={[styles.card, { width: cardWidth }, { backgroundColor: isDarkMode ? "#adadadff" : "#FFEBEE" }]}>
       <View style={styles.imageContainer}>
         <Image source={item.image} style={styles.image} />
         <View style={styles.categoryBadge}>
@@ -61,7 +68,7 @@ function FavoritesTab() {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: isDarkMode ? "#000" : "#FFEBEE" }]}>
       {favorites.length === 0 ? (
         renderEmptyState()
       ) : (
@@ -82,7 +89,7 @@ function FavoritesTab() {
           />
         </>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 

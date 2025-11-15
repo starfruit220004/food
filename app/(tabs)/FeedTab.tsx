@@ -1,15 +1,17 @@
 import React from 'react';
-import {View,Text,Image,ScrollView,TouchableOpacity,StyleSheet,Dimensions,Modal,} from 'react-native';
+import {View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Dimensions, Modal, TextInput} from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { useFavorites } from './FavoritesContext';
+import { useColorScheme } from 'react-native';
+
 
 const sampleFoods = [
   {
     id: 1,
     name: 'Chicken Adobo',
     description: 'Classic Filipino dish with soy sauce and vinegar',
-    image: require('../../assets/images/chicken2.jpg'),
+    image: require('../../assets/images/adobo.jpg'),
     rating: 5,
     category: 'Main Course',
   },
@@ -17,7 +19,7 @@ const sampleFoods = [
     id: 2,
     name: 'Pancit Canton',
     description: 'Stir-fried noodles with vegetables',
-    image: require('../../assets/images/chicken2.jpg'),
+    image: require('../../assets/images/pancit-canton2.jpg'),
     rating: 4,
     category: 'Noodles',
   },
@@ -25,7 +27,7 @@ const sampleFoods = [
     id: 3,
     name: 'Lumpia',
     description: 'Filipino spring rolls',
-    image: require('../../assets/images/chicken2.jpg'),
+    image: require('../../assets/images/lumpia.jpg'),
     rating: 5,
     category: 'Appetizer',
   },
@@ -33,15 +35,15 @@ const sampleFoods = [
     id: 4,
     name: 'Sinigang',
     description: 'Sour tamarind soup',
-    image: require('../../assets/images/chicken2.jpg'),
+    image: require('../../assets/images/sinigang.jpg'),
     rating: 4,
     category: 'Soup',
   },
   {
     id: 5,
     name: 'Tinola',
-    description: 'Roasted pig, crispy skin',
-    image: require('../../assets/images/chicken2.jpg'),
+    description: 'Filipino chicken ginger soup',
+    image: require('../../assets/images/tinola.jpg'),
     rating: 5,
     category: 'Main Course',
   },
@@ -49,13 +51,32 @@ const sampleFoods = [
     id: 6,
     name: 'Halo-Halo',
     description: 'Mixed dessert with shaved ice',
-    image: require('../../assets/images/chicken2.jpg'),
+    image: require('../../assets/images/halohalo.jpg'),
+    rating: 5,
+    category: 'Dessert',
+  },
+  {
+    id: 7,
+    name: 'Siomai',
+    description: 'Filipino-style steamed dumpling',
+    image: require('../../assets/images/siomai.jpg'),
+    rating: 5,
+    category: 'Appetizer',
+  },
+  {
+    id: 8,
+    name: 'Leche Flan',
+    description: 'Rich and creamy Filipino caramel custard dessert',
+    image: require('../../assets/images/leche.jpg'),
     rating: 5,
     category: 'Dessert',
   },
 ];
 
+
 function FeedHome({ navigation }: any) {
+	const scheme = useColorScheme();
+	const isDarkMode = scheme === 'dark';
   const { isFavorite } = useFavorites();
   const cardWidth = (Dimensions.get('window').width - 30) / 2;
 
@@ -74,21 +95,82 @@ function FeedHome({ navigation }: any) {
     );
   };
 
+
+const [searchQuery, setSearchQuery] = React.useState('');
+const [selectedCategory, setSelectedCategory] = React.useState('All');
+const [showFilter, setShowFilter] = React.useState(false);
+
+const categories = ['All', 'Main Course', 'Noodles', 'Appetizer', 'Soup', 'Dessert'];
+
+const filteredFoods = sampleFoods.filter((food) => {
+  const matchesSearch = food.name.toLowerCase().includes(searchQuery.toLowerCase());
+  const matchesCategory =
+    selectedCategory === 'All' || food.category === selectedCategory;
+  return matchesSearch && matchesCategory;
+});
+
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-      <View style={styles.header}>
-        <Text style={styles.title}>🍽️ Food Log</Text>
-        <Text style={styles.subtitle}>Discover your favorite Filipino dishes</Text>
-      </View>
+
+    <ScrollView style={[styles.scroll, { backgroundColor: isDarkMode ? "#000" : "#FFEBEE" }]} contentContainerStyle={styles.scrollContent}>
+
+      	<View style={styles.header}>
+			<Text style={styles.title}>🍽️ Food Log</Text>
+			<Text style={styles.subtitle}>Discover your favorite Filipino dishes</Text>
+		</View>
+
+		<View style={styles.searchContainer}>
+			<View style={styles.searchBar}>
+				<Ionicons name="search" size={18} color="#757575" style={{ marginRight: 8 }} />
+				<TextInput
+				placeholder="Search food..."
+				value={searchQuery}
+				onChangeText={setSearchQuery}
+				style={styles.searchInput}
+				placeholderTextColor="#9E9E9E"
+				/>
+			</View>
+
+			<TouchableOpacity
+				style={styles.filterButton}
+				onPress={() => setShowFilter(!showFilter)}
+				activeOpacity={0.8}>
+					<Ionicons name="filter" size={18} color="#FFFFFF" />
+					<Text style={styles.filterText}>
+						{selectedCategory === 'All' ? 'Filter' : selectedCategory}
+					</Text>
+			</TouchableOpacity>
+		</View>
+
+		{showFilter && (
+		<View style={styles.filterDropdown}>
+			{categories.map((cat) => 
+			<TouchableOpacity key={cat} onPress={() => {
+				setSelectedCategory(cat);
+				setShowFilter(false);
+				}}
+				style={[
+				styles.filterOption,
+				selectedCategory === cat && styles.filterOptionActive,
+				]}>
+				<Text style={[
+						styles.filterOptionText,
+						selectedCategory === cat && styles.filterOptionTextActive,
+				]}>
+				{cat}
+				</Text>
+			</TouchableOpacity>
+			)}
+		</View>
+		)}
 
       <View style={styles.row}>
-        {sampleFoods.map((food) => (
+        {filteredFoods.map((food) => (
           <TouchableOpacity
             key={food.id}
-            style={[styles.card, { width: cardWidth }]}
+            style={[styles.card, { width: cardWidth, backgroundColor: isDarkMode ? "#c9c9c9ff" : "#FFEBEE"}]}
             onPress={() => navigation.navigate('FoodDetail', { food })}
-            activeOpacity={0.8}
-          >
+            activeOpacity={0.8}>
+
             <View style={styles.imageContainer}>
               <Image source={food.image} style={styles.image} />
               {isFavorite(food.id) && (
@@ -125,7 +207,7 @@ function FoodDetail({ route, navigation }: any) {
   const { addFavorite, removeFavorite, isFavorite } = useFavorites();
   const isFav = isFavorite(food.id);
 
-  // ===== Modal State =====
+  
   const [showModal, setShowModal] = React.useState(false);
   const [modalMessage, setModalMessage] = React.useState('');
 
@@ -156,9 +238,12 @@ function FoodDetail({ route, navigation }: any) {
     );
   };
 
+const scheme = useColorScheme();
+const isDarkMode = scheme === 'dark';
+
   return (
     <>
-      <ScrollView style={styles.detailScroll} contentContainerStyle={styles.detailContent}>
+      <ScrollView style={[styles.detailScroll, { backgroundColor: isDarkMode ? "#000" : "#FFEBEE" }]} contentContainerStyle={styles.detailContent}>
         <View style={styles.detailImageContainer}>
           <Image source={food.image} style={styles.detailImage} />
           <View style={styles.detailCategoryBadge}>
@@ -177,8 +262,8 @@ function FoodDetail({ route, navigation }: any) {
               isFav ? styles.favoriteButtonRemove : styles.favoriteButtonAdd,
             ]}
             onPress={handleFavoriteToggle}
-            activeOpacity={0.8}
-          >
+            activeOpacity={0.8}>
+
             <Ionicons name={isFav ? 'heart' : 'heart-outline'} size={24} color="#FFFFFF" />
             <Text style={styles.favoriteButtonText}>
               {isFav ? 'Remove from Favorites' : 'Add to Favorites'}
@@ -187,16 +272,16 @@ function FoodDetail({ route, navigation }: any) {
         </View>
       </ScrollView>
 
-      {/* ===== Modal for Favorite Feedback ===== */}
       <Modal visible={showModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <Text style={styles.modalText}>{modalMessage}</Text>
             <TouchableOpacity
               style={styles.modalButton}
-              onPress={() => setShowModal(false)}
-            >
+              onPress={() => setShowModal(false)}>
+
               <Text style={styles.modalButtonText}>OK</Text>
+
             </TouchableOpacity>
           </View>
         </View>
@@ -205,9 +290,13 @@ function FoodDetail({ route, navigation }: any) {
   );
 }
 
+
 const Stack = createNativeStackNavigator();
 
 function FeedTab() {
+	const scheme = useColorScheme();
+const isDarkMode = scheme === 'dark';
+	
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -216,9 +305,12 @@ function FeedTab() {
         options={{
           title: 'Food Log',
           headerStyle: {
-            backgroundColor: '#B71C1C',
+            // backgroundColor: '#B71C1C',
+			backgroundColor: isDarkMode ? '#000000ff' : '#B71C1C',
+			
           },
-          headerTintColor: '#FFFFFF',
+        //   headerTintColor: '#FFFFFF',
+		  headerTintColor: isDarkMode ? '#ffffffff' : '#ffffffff',
           headerTitleStyle: {
             fontWeight: 'bold',
             fontSize: 20,
@@ -231,9 +323,11 @@ function FeedTab() {
         options={{
           title: 'Food Detail',
           headerStyle: {
-            backgroundColor: '#B71C1C',
+            // backgroundColor: '#B71C1C',
+			backgroundColor: isDarkMode ? '#000000ff' : '#B71C1C',
           },
-          headerTintColor: '#FFFFFF',
+        //   headerTintColor: '#FFFFFF',
+		  headerTintColor: isDarkMode ? '#ffffffff' : '#ffffffff',
           headerTitleStyle: {
             fontWeight: 'bold',
           },
@@ -271,7 +365,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   card: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ffffffff',
     marginBottom: 15,
     borderRadius: 16,
     overflow: 'hidden',
@@ -448,5 +542,68 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+
+  searchContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 10,
+  paddingHorizontal: 10,
+},
+searchBar: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#FFF',
+  borderRadius: 10,
+  paddingHorizontal: 10,
+  flex: 1,
+  marginRight: 8,
+  height: 40,
+  elevation: 2,
+},
+searchInput: {
+  flex: 1,
+  fontSize: 14,
+  color: '#424242',
+},
+filterButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#B71C1C',
+  borderRadius: 10,
+  paddingHorizontal: 10,
+  height: 40,
+  elevation: 3,
+},
+filterText: {
+  color: '#FFF',
+  marginLeft: 6,
+  fontWeight: '600',
+  fontSize: 13,
+},
+filterDropdown: {
+  backgroundColor: '#FFF',
+  borderRadius: 10,
+  marginHorizontal: 10,
+  marginBottom: 10,
+  elevation: 4,
+  overflow: 'hidden',
+},
+filterOption: {
+  paddingVertical: 10,
+  paddingHorizontal: 15,
+},
+filterOptionActive: {
+  backgroundColor: '#B71C1C',
+},
+filterOptionText: {
+  fontSize: 14,
+  color: '#424242',
+},
+filterOptionTextActive: {
+  color: '#FFF',
+  fontWeight: 'bold',
+},
+
 });
 export default FeedTab;
