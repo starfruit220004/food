@@ -105,7 +105,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
       </View>
 
       <View style={styles.menuSection}>
-        {/* PROFILE - Only show if logged in */}
+        {/* PROFILE */}
         {isLoggedIn && (
           <TouchableOpacity
             style={[styles.menuItem, { borderBottomColor: isDarkMode ? '#2C2C2E' : '#E0E0E0' }]}
@@ -184,8 +184,8 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
           </View>
         )}
 
-        {/* LOGIN / LOGOUT */}
-        {!isLoggedIn ? (
+        {/* LOGIN */}
+        {!isLoggedIn && (
           <TouchableOpacity
             style={[styles.menuItem, { borderBottomColor: isDarkMode ? '#2C2C2E' : '#E0E0E0' }]}
             onPress={() => props.navigation.navigate('Login' as never)}
@@ -196,37 +196,41 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
             </Text>
             <Ionicons name="chevron-forward" size={20} color={isDarkMode ? '#616161' : '#BDBDBD'} />
           </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            style={[styles.menuItem, { borderBottomColor: isDarkMode ? '#2C2C2E' : '#E0E0E0' }]}
-            onPress={() => handleMenuPress('Logout')}
-          >
-            <Ionicons name="log-out-outline" size={24} color={isDarkMode ? '#BDBDBD' : '#757575'} />
-            <Text style={[styles.menuItemText, { color: isDarkMode ? '#FFFFFF' : '#424242' }]}>
-              Logout
-            </Text>
-            <Ionicons name="chevron-forward" size={20} color={isDarkMode ? '#616161' : '#BDBDBD'} />
-          </TouchableOpacity>
         )}
       </View>
 
       {/* BACK TO HOME */}
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => props.navigation.navigate('Tabs' as never)}
-      >
-        <Ionicons name="arrow-back-circle" size={26} color="#FFFFFF" />
-        <Text style={styles.backButtonText}>Back</Text>
-      </TouchableOpacity>
+      {isLoggedIn && (
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => props.navigation.navigate('Tabs' as never)}
+        >
+          <Ionicons name="arrow-back-circle" size={26} color="#FFFFFF" />
+          <Text style={styles.backButtonText}>Back</Text>
+        </TouchableOpacity>
+      )}
 
       {/* FOOTER */}
       <View style={styles.drawerFooter}>
-        <Text style={[styles.footerText, { color: isDarkMode ? '#757575' : '#9E9E9E' }]}>
-          Version 1.0.0
-        </Text>
-        <Text style={[styles.footerText, { color: isDarkMode ? '#757575' : '#9E9E9E' }]}>
-          Made with ❤️ kahit pagod na.
-        </Text>
+        {isLoggedIn ? (
+          <TouchableOpacity
+            style={[styles.logoutButton, { backgroundColor: isDarkMode ? '#2C2C2E' : '#F5F5F5' }]}
+            onPress={() => handleMenuPress('Logout')}
+          >
+            <Ionicons name="log-out-outline" size={24} color="#B71C1C" />
+            <Text style={[styles.logoutButtonText, { color: isDarkMode ? '#FF5252' : '#B71C1C' }]}>
+              Logout
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            style={styles.loginButtonBottom}
+            onPress={() => props.navigation.navigate('Login' as never)}
+          >
+            <Ionicons name="log-in-outline" size={24} color="#FFFFFF" />
+            <Text style={styles.loginButtonText}>Login</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </DrawerContentScrollView>
   );
@@ -240,7 +244,7 @@ export default function MainDrawer() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check authentication status on app launch
+  // Check authentication
   useEffect(() => {
     checkAuthStatus();
   }, []);
@@ -292,7 +296,7 @@ export default function MainDrawer() {
     }
   };
 
-  // Show loading screen while checking auth status
+  // Show loading 
   if (isLoading) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: isDarkMode ? '#000' : '#FFEBEE' }]}>
@@ -413,7 +417,7 @@ export default function MainDrawer() {
           }}
         />
 
-        {/* Profile - only accessible when logged in */}
+        {/* Profile  */}
         <Drawer.Screen
           name="Profile"
           component={Profile}
@@ -477,19 +481,10 @@ const styles = StyleSheet.create({
   subMenuText: {
     fontSize: 15,
   },
-  drawerFooter: {
-    marginTop: 'auto',
-    padding: 20,
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.1)'
-  },
-  footerText: { fontSize: 12, marginVertical: 2 },
-  menuButton: { marginLeft: 15, padding: 4 },
   backButton: {
     marginTop: 20,
     backgroundColor: '#B71C1C',
-    marginHorizontal: 4,
+    marginHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 10,
     flexDirection: 'row',
@@ -498,6 +493,45 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   backButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
+  logoutButton: {
+    marginTop: 10,
+    marginHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#B71C1C',
+  },
+  logoutButtonText: { 
+    fontSize: 16, 
+    fontWeight: '700',
+  },
+  loginButtonBottom: {
+    backgroundColor: '#B71C1C',
+    marginHorizontal: 0,
+    paddingVertical: 14,
+    borderRadius: 10,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+    alignItems: 'center',
+  },
+  loginButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  drawerFooter: {
+    marginTop: 'auto',
+    padding: 20,
+    paddingBottom: 10,
+    alignItems: 'center',
+  },
+  footerText: { fontSize: 12, marginVertical: 2 },
+  menuButton: { marginLeft: 15, padding: 4 },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',

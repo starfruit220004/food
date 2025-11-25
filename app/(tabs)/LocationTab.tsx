@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet, useColorScheme, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function LocationTab() {
@@ -16,10 +16,11 @@ export default function LocationTab() {
 
       {/* Map Placeholder */}
       <View style={[styles.mapBox, { backgroundColor: isDark ? "#1E1E1E" : "#FFFFFF" }]}>
-        <Ionicons name="map-outline" size={60} color={isDark ? "#BDBDBD" : "#9E9E9E"} />
-        <Text style={[styles.mapText, { color: isDark ? "#BDBDBD" : "#757575" }]}>
-          Map coming soon...
-        </Text>
+        <Image
+          source={require('../../assets/images/map.jpg')}
+          style={styles.mapImage}
+          resizeMode="cover"
+        />
       </View>
 
       {/* Address Card */}
@@ -32,7 +33,7 @@ export default function LocationTab() {
           </Text>
 
           <Text style={[styles.cardSubtitle, { color: isDark ? "#BDBDBD" : "#616161" }]}>
-            Purok 3, Baliwasan, Philippines
+            Baliwasan, Philippines
           </Text>
         </View>
       </View>
@@ -43,12 +44,11 @@ export default function LocationTab() {
 
         <View style={{ marginLeft: 10 }}>
           <Text style={[styles.cardTitle, { color: isDark ? "#FFFFFF" : "#212121" }]}>
-            Business Hours
+            Open Hours
           </Text>
 
           <Text style={[styles.cardSubtitle, { color: isDark ? "#BDBDBD" : "#616161" }]}>
-            Monday – Saturday: 9:00 AM – 7:00 PM  
-            Sunday: Closed
+            Everyday: 7:00 AM – 10:00 PM  
           </Text>
         </View>
       </View>
@@ -82,6 +82,12 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 6,
+    overflow: 'hidden',
+  },
+
+  mapImage: {
+    width: "100%",
+    height: "100%",
   },
 
   mapText: {

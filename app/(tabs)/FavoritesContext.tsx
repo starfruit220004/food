@@ -1,13 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-
-interface Food {
-  id: number;
-  name: string;
-  description: string;
-  image: any;
-  rating: number;
-  category: string;
-}
+import { Food } from '../types';
 
 interface FavoritesContextType {
   favorites: Food[];
@@ -53,7 +45,7 @@ export function useFavorites() {
   return context;
 }
 
-export default FavoritesContext
+export default FavoritesContext;
 
 // git branch search_bar_filter_feature
 

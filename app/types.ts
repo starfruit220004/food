@@ -1,3 +1,4 @@
+// Navigation Types
 export type TabParamList = {
   Promos: undefined;
   Feed: undefined;
@@ -15,15 +16,20 @@ export type RootStackParamList = {
 
 export type FeedStackParamList = {
   FeedHome: undefined;
-  FoodDetail: { food: FoodItem };
-  WriteReview: { food: FoodItem };
+  FoodDetail: { food: Food };
+  WriteReview: { food: Food };
+  WriteShopReview: undefined;
 };
 
-export interface FoodItem {
+// Food Types 
+export type Food = {
   id: number;
   name: string;
   description: string;
   image: any;
-  rating: number;
   category: string;
-}
+  price: number;
+  stock: number;
+};
+
+export type FoodItem = Food;
