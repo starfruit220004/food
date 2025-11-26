@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { View, Text, Alert, ScrollView, Image, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, useColorScheme, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -50,48 +50,41 @@ export default function Promos() {
   const navigation = useNavigation<PromoNavigationProp>();
   const { isLoggedIn, userData } = useContext(AuthContext);
 
-  // Handle promo claim - ONLY for logged in users
+  const [modalVisible, setModalVisible] = useState(false);
+  const [authModalVisible, setAuthModalVisible] = useState(false);
+  const [claimModalVisible, setClaimModalVisible] = useState(false);
+  const [selectedPromo, setSelectedPromo] = useState<typeof samplePromos[0] | null>(null);
+
   const handleClaimPromo = (promo: typeof samplePromos[0]) => {
     if (isLoggedIn) {
-      claimPromo(promo);
+      setSelectedPromo(promo);
+      setClaimModalVisible(true);
     } else {
-      // Show alert with options to Login or Sign Up
-      Alert.alert(
-        '🔐 Account Required',
-        `You need to have an account to claim: ${promo.title}`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Login',
-            onPress: () => {
-              navigation.navigate('Login', {
-                redirect: 'promo-claim',
-                promoId: promo.id,
-                promoTitle: promo.title,
-              });
-            },
-          },
-          {
-            text: 'Sign Up',
-            onPress: () => {
-              navigation.navigate('Signup', {
-                redirect: 'promo-claim',
-                promoId: promo.id,
-                promoTitle: promo.title,
-              });
-            },
-          },
-        ]
-      );
+      setSelectedPromo(promo);
+      setAuthModalVisible(true);
     }
   };
 
-  const claimPromo = (promo: typeof samplePromos[0]) => {
-    Alert.alert(
-      'Success! 🎉',
-      `${userData?.username}, you have claimed: ${promo.title}\n\n${promo.terms}\n\nExpires: ${promo.expiryDate}`,
-      [{ text: 'OK' }]
-    );
+  const handleLoginPress = () => {
+    setAuthModalVisible(false);
+    if (selectedPromo) {
+      navigation.navigate('Login', {
+        redirect: 'promo-claim',
+        promoId: selectedPromo.id,
+        promoTitle: selectedPromo.title,
+      });
+    }
+  };
+
+  const handleSignupPress = () => {
+    setAuthModalVisible(false);
+    if (selectedPromo) {
+      navigation.navigate('Signup', {
+        redirect: 'promo-claim',
+        promoId: selectedPromo.id,
+        promoTitle: selectedPromo.title,
+      });
+    }
   };
 
   return (
@@ -110,7 +103,6 @@ export default function Promos() {
         </Text>
       </View>
 
-      {/* Promo Cards */}
       {samplePromos.map(promo => (
         <View 
           key={promo.id} 
@@ -174,7 +166,6 @@ export default function Promos() {
         </View>
       ))}
 
-      {/* Info Banner for Non-Logged In Users */}
       {!isLoggedIn && (
         <View style={[styles.infoBanner, { backgroundColor: isDarkMode ? '#2C2C2E' : '#FFF3E0' }]}>
           <Ionicons name="lock-closed" size={32} color="#B71C1C" />
@@ -207,20 +198,84 @@ export default function Promos() {
         </View>
       )}
 
-      {/* Success Message for Logged In Users */}
       {isLoggedIn && (
-        <View style={[styles.infoBanner, { backgroundColor: isDarkMode ? '#1B5E20' : '#E8F5E9' }]}>
-          <Ionicons name="checkmark-circle" size={32} color="#4CAF50" />
+        <View style={[styles.infoBanner, { backgroundColor: isDarkMode ? '#2C2C2E' : '#FFEBEE' }]}>
+          <Ionicons name="checkmark-circle" size={32} color={isDarkMode ? '#FF5252' : '#B71C1C'} />
           <View style={styles.infoBannerText}>
-            <Text style={[styles.infoBannerTitle, { color: isDarkMode ? '#81C784' : '#2E7D32' }]}>
+            <Text style={[styles.infoBannerTitle, { color: isDarkMode ? '#FF5252' : '#B71C1C' }]}>
               You're All Set!
             </Text>
-            <Text style={[styles.infoBannerDesc, { color: isDarkMode ? '#A5D6A7' : '#558B2F' }]}>
+            <Text style={[styles.infoBannerDesc, { color: isDarkMode ? '#BDBDBD' : '#757575' }]}>
               Tap any promo above to claim your exclusive deals!
             </Text>
           </View>
         </View>
       )}
+
+      {/* Auth Modal - For non-logged-in users */}
+      <Modal visible={authModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalBox, { backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF' }]}>
+            <Ionicons name="lock-closed" size={64} color={isDarkMode ? '#FF5252' : '#B71C1C'} />
+            <Text style={[styles.modalTitle, { color: isDarkMode ? '#FFFFFF' : '#424242' }]}>
+              🔐 Account Required
+            </Text>
+            <Text style={[styles.modalText, { color: isDarkMode ? '#BDBDBD' : '#757575' }]}>
+              You need to have an account to claim:{'\n\n'}{selectedPromo?.title}
+            </Text>
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity 
+                style={[styles.modalCancelButton, { borderColor: isDarkMode ? '#757575' : '#9E9E9E' }]}
+                onPress={() => setAuthModalVisible(false)}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.modalCancelButtonText, { color: isDarkMode ? '#BDBDBD' : '#757575' }]}>
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.modalActionButton, { backgroundColor: '#757575' }]}
+                onPress={handleLoginPress}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.modalActionButtonText}>Login</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.modalActionButton, { backgroundColor: '#B71C1C' }]}
+                onPress={handleSignupPress}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.modalActionButtonText}>Sign Up</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Claim Success Modal - For logged-in users */}
+      <Modal visible={claimModalVisible} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalBox, { backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF' }]}>
+            <Ionicons name="checkmark-circle" size={64} color={isDarkMode ? '#FF5252' : '#B71C1C'} />
+            <Text style={[styles.modalTitle, { color: isDarkMode ? '#FFFFFF' : '#424242' }]}>
+              Success! 🎉
+            </Text>
+            <Text style={[styles.modalText, { color: isDarkMode ? '#BDBDBD' : '#757575' }]}>
+              {userData?.username}, you have claimed:{'\n\n'}
+              {selectedPromo?.title}{'\n\n'}
+              {selectedPromo?.terms}{'\n\n'}
+              Expires: {selectedPromo?.expiryDate}
+            </Text>
+            <TouchableOpacity 
+              style={[styles.modalButton, { backgroundColor: '#B71C1C' }]}
+              onPress={() => setClaimModalVisible(false)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.modalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -228,7 +283,6 @@ export default function Promos() {
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { padding: 16, paddingBottom: 30 },
-
   headerContainer: { 
     marginBottom: 24,
     alignItems: 'center',
@@ -244,7 +298,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingHorizontal: 20,
   },
-
   promoCard: { 
     borderRadius: 16, 
     overflow: 'hidden', 
@@ -290,7 +343,6 @@ const styles = StyleSheet.create({
     lineHeight: 22, 
     marginBottom: 16 
   },
-
   detailsContainer: {
     marginBottom: 16,
     paddingTop: 12,
@@ -311,7 +363,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginLeft: 6,
   },
-
   claimButton: { 
     flexDirection: 'row', 
     alignItems: 'center', 
@@ -331,7 +382,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', 
     color: '#FFF' 
   },
-
   infoBanner: {
     marginTop: 10,
     marginBottom: 10,
@@ -385,5 +435,71 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBox: {
+    width: '85%',
+    borderRadius: 20,
+    padding: 30,
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 16,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  modalText: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 22,
+  },
+  modalButtonContainer: {
+    width: '100%',
+    gap: 10,
+  },
+  modalCancelButton: {
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 2,
+    alignItems: 'center',
+  },
+  modalCancelButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalActionButton: {
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  modalActionButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  modalButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    borderRadius: 12,
+    minWidth: 120,
+  },
+  modalButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
 });

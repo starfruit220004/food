@@ -70,8 +70,12 @@ function FeedHome({ navigation }: any) {
       contentContainerStyle={styles.scrollContent}
     >
       <View style={styles.header}>
+        <Image 
+          source={require('../../assets/images/logo2.jpeg')} 
+          style={styles.headerLogo}
+        />
         <Text style={[styles.title, { color: isDarkMode ? '#FFFFFF' : '#B71C1C' }]}>
-          🍽️ Kuya Vince Carenderia
+          Kuya Vince Carenderia
         </Text>
         <Text style={[styles.subtitle, { color: isDarkMode ? '#BDBDBD' : '#757575' }]}>
           Discover your favorite Filipino dishes
@@ -263,6 +267,12 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   scrollContent: { padding: 10, paddingBottom: 30 },
   header: { alignItems: 'center', marginVertical: 20 },
+  headerLogo: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 12,
+  },
   title: { fontSize: 28, fontWeight: 'bold', marginBottom: 8 },
   subtitle: { fontSize: 14, marginBottom: 16 },
   

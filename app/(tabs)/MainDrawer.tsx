@@ -1,5 +1,5 @@
 import React, { useState, createContext, useEffect } from 'react';
-import { useColorScheme, StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useColorScheme, StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import {createDrawerNavigator,DrawerContentScrollView,DrawerContentComponentProps} from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -30,6 +30,8 @@ type DrawerParamList = {
 };
 
 export interface UserData {
+  firstname: string;
+  lastname: string;
   username: string;
   email: string;
   phone: string;
@@ -53,6 +55,7 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
+
 
 // DRAWER SIDEBAR
 function CustomDrawerContent(props: DrawerContentComponentProps) {
@@ -85,27 +88,17 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
         { backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF' }
       ]}
     >
-      {/* HEADER */}
-      <View
-        style={[
-          styles.drawerHeader,
-          { backgroundColor: isDarkMode ? '#2C2C2E' : '#B71C1C' }
-        ]}
-      >
-        <Ionicons name="restaurant" size={48} color="#FFFFFF" />
-        <Text style={styles.drawerHeaderText}>Kuya Vince Carenderia</Text>
-        <Text style={styles.drawerHeaderSubtext}>Filipino Cuisine</Text>
-        
-        {/* Display user info if logged in */}
-        {isLoggedIn && userData && (
-          <View style={styles.userInfoContainer}>
-            <Text style={styles.userInfoText}>👤 {userData.username}</Text>
-          </View>
-        )}
+
+      <View style={{ alignItems: 'center', paddingVertical: 25 }}>
+        <Image
+          source={require('../../assets/images/logo2.jpeg')}
+          style={{ width: 140, height: 140, borderRadius: 10 }}
+          resizeMode="contain"
+        />
       </View>
 
       <View style={styles.menuSection}>
-        {/* PROFILE */}
+        {/* PROFILE  */}
         {isLoggedIn && (
           <TouchableOpacity
             style={[styles.menuItem, { borderBottomColor: isDarkMode ? '#2C2C2E' : '#E0E0E0' }]}
@@ -183,23 +176,9 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
             </TouchableOpacity>
           </View>
         )}
-
-        {/* LOGIN */}
-        {!isLoggedIn && (
-          <TouchableOpacity
-            style={[styles.menuItem, { borderBottomColor: isDarkMode ? '#2C2C2E' : '#E0E0E0' }]}
-            onPress={() => props.navigation.navigate('Login' as never)}
-          >
-            <Ionicons name="log-in-outline" size={24} color={isDarkMode ? '#BDBDBD' : '#757575'} />
-            <Text style={[styles.menuItemText, { color: isDarkMode ? '#FFFFFF' : '#424242' }]}>
-              Login
-            </Text>
-            <Ionicons name="chevron-forward" size={20} color={isDarkMode ? '#616161' : '#BDBDBD'} />
-          </TouchableOpacity>
-        )}
       </View>
 
-      {/* BACK TO HOME */}
+      {/* BACK TO HOME*/}
       {isLoggedIn && (
         <TouchableOpacity
           style={styles.backButton}
@@ -210,7 +189,7 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
         </TouchableOpacity>
       )}
 
-      {/* FOOTER */}
+      {/* FOOTER  */}
       <View style={styles.drawerFooter}>
         {isLoggedIn ? (
           <TouchableOpacity
@@ -232,9 +211,11 @@ function CustomDrawerContent(props: DrawerContentComponentProps) {
           </TouchableOpacity>
         )}
       </View>
+
     </DrawerContentScrollView>
   );
 }
+
 
 export default function MainDrawer() {
   const scheme = useColorScheme();
@@ -244,7 +225,6 @@ export default function MainDrawer() {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check authentication
   useEffect(() => {
     checkAuthStatus();
   }, []);
@@ -296,7 +276,7 @@ export default function MainDrawer() {
     }
   };
 
-  // Show loading 
+  
   if (isLoading) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: isDarkMode ? '#000' : '#FFEBEE' }]}>
@@ -383,7 +363,6 @@ export default function MainDrawer() {
           }}
         />
 
-        {/* Auth Screens */}
         <Drawer.Screen
           name="Login"
           component={Login}
@@ -417,7 +396,7 @@ export default function MainDrawer() {
           }}
         />
 
-        {/* Profile  */}
+        {/* Profile */}
         <Drawer.Screen
           name="Profile"
           component={Profile}
@@ -442,6 +421,7 @@ export default function MainDrawer() {
     </AuthContext.Provider>
   );
 }
+
 export type { DrawerParamList };
 
 const styles = StyleSheet.create({
@@ -494,7 +474,6 @@ const styles = StyleSheet.create({
   },
   backButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
   logoutButton: {
-    marginTop: 10,
     marginHorizontal: 16,
     paddingVertical: 14,
     borderRadius: 10,
@@ -504,6 +483,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#B71C1C',
+    width: '100%',
   },
   logoutButtonText: { 
     fontSize: 16, 
@@ -511,13 +491,13 @@ const styles = StyleSheet.create({
   },
   loginButtonBottom: {
     backgroundColor: '#B71C1C',
-    marginHorizontal: 0,
     paddingVertical: 14,
     borderRadius: 10,
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 10,
     alignItems: 'center',
+    width: '100%',
   },
   loginButtonText: {
     color: '#FFFFFF',
@@ -526,9 +506,9 @@ const styles = StyleSheet.create({
   },
   drawerFooter: {
     marginTop: 'auto',
-    padding: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 20,
     paddingBottom: 10,
-    alignItems: 'center',
   },
   footerText: { fontSize: 12, marginVertical: 2 },
   menuButton: { marginLeft: 15, padding: 4 },

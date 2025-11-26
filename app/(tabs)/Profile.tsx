@@ -9,6 +9,8 @@ export default function Profile() {
   const [darkMode, setDarkMode] = useState(systemTheme === "dark");
   const { userData, updateUserData, isLoggedIn } = useContext(AuthContext);
 
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -22,6 +24,8 @@ export default function Profile() {
   // Load user data when component mounts
   useEffect(() => {
     if (userData) {
+      setFirstname(userData.firstname || "");
+      setLastname(userData.lastname || "");
       setUsername(userData.username);
       setEmail(userData.email);
       setPhone(userData.phone);
@@ -68,7 +72,7 @@ export default function Profile() {
   const saveChanges = async () => {
     
     // Validation
-    if (!username.trim() || !email.trim() || !phone.trim()) {
+    if (!firstname.trim() || !lastname.trim() || !username.trim() || !email.trim() || !phone.trim()) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -89,6 +93,8 @@ export default function Profile() {
 
     try {
       const updatedData = {
+        firstname: firstname.trim(),
+        lastname: lastname.trim(),
         username: username.trim(),
         email: email.trim().toLowerCase(),
         phone: phone.trim(),
@@ -106,6 +112,8 @@ export default function Profile() {
   const cancelEdit = () => {
     // Restore original data
     if (userData) {
+      setFirstname(userData.firstname || "");
+      setLastname(userData.lastname || "");
       setUsername(userData.username);
       setEmail(userData.email);
       setPhone(userData.phone);
@@ -131,6 +139,13 @@ export default function Profile() {
     );
   }
 
+  // Get initials for avatar
+  const getInitials = () => {
+    const first = firstname.charAt(0).toUpperCase();
+    const last = lastname.charAt(0).toUpperCase();
+    return first && last ? `${first}${last}` : username.charAt(0).toUpperCase();
+  };
+
   return (
     <ScrollView 
       style={[styles.container, darkMode ? styles.darkBg : styles.lightBg]}
@@ -145,8 +160,8 @@ export default function Profile() {
         {profilePic ? (
           <Image source={{ uri: profilePic }} style={styles.profileImage} />
         ) : (
-          <View style={[styles.profileImagePlaceholder, { backgroundColor: darkMode ? '#333' : '#E0E0E0' }]}>
-            <Ionicons name="person" size={60} color={darkMode ? '#757575' : '#9E9E9E'} />
+          <View style={[styles.profileImagePlaceholder, { backgroundColor: darkMode ? '#B71C1C' : '#FF5252' }]}>
+            <Text style={styles.initialsText}>{getInitials()}</Text>
           </View>
         )}
         {editMode && (
@@ -156,18 +171,74 @@ export default function Profile() {
         )}
       </TouchableOpacity>
       
+      {/* Display Full Name and Username */}
+      <View style={styles.nameContainer}>
+        <Text style={[styles.fullNameText, darkMode ? styles.textLight : styles.textDark]}>
+          {firstname} {lastname}
+        </Text>
+        <Text style={[styles.usernameDisplayText, { color: darkMode ? '#BDBDBD' : '#757575' }]}>
+          @{username}
+        </Text>
+      </View>
+      
       {editMode && (
         <Text style={[styles.changePhotoText, { color: darkMode ? '#FF5252' : '#B71C1C' }]}>
-          Tap to change photo
+          Tap photo to change
         </Text>
       )}
 
       {/* Info Cards */}
       <View style={styles.infoContainer}>
-        {/* Username */}
+        {/* First Name */}
         <View style={[styles.infoCard, darkMode ? styles.cardDark : styles.cardLight]}>
           <View style={styles.infoHeader}>
             <Ionicons name="person-outline" size={20} color={darkMode ? '#FF5252' : '#B71C1C'} />
+            <Text style={[styles.label, darkMode ? styles.textLight : styles.textDark]}>
+              First Name
+            </Text>
+          </View>
+          <TextInput
+            editable={editMode}
+            value={firstname}
+            onChangeText={setFirstname}
+            style={[
+              styles.input, 
+              darkMode ? styles.inputDark : styles.inputLight,
+              !editMode && styles.inputDisabled
+            ]}
+            placeholder="Enter first name"
+            placeholderTextColor="#9E9E9E"
+            autoCapitalize="words"
+          />
+        </View>
+
+        {/* Last Name */}
+        <View style={[styles.infoCard, darkMode ? styles.cardDark : styles.cardLight]}>
+          <View style={styles.infoHeader}>
+            <Ionicons name="person-outline" size={20} color={darkMode ? '#FF5252' : '#B71C1C'} />
+            <Text style={[styles.label, darkMode ? styles.textLight : styles.textDark]}>
+              Last Name
+            </Text>
+          </View>
+          <TextInput
+            editable={editMode}
+            value={lastname}
+            onChangeText={setLastname}
+            style={[
+              styles.input, 
+              darkMode ? styles.inputDark : styles.inputLight,
+              !editMode && styles.inputDisabled
+            ]}
+            placeholder="Enter last name"
+            placeholderTextColor="#9E9E9E"
+            autoCapitalize="words"
+          />
+        </View>
+
+        {/* Username */}
+        <View style={[styles.infoCard, darkMode ? styles.cardDark : styles.cardLight]}>
+          <View style={styles.infoHeader}>
+            <Ionicons name="at-outline" size={20} color={darkMode ? '#FF5252' : '#B71C1C'} />
             <Text style={[styles.label, darkMode ? styles.textLight : styles.textDark]}>
               Username
             </Text>
@@ -183,6 +254,7 @@ export default function Profile() {
             ]}
             placeholder="Enter username"
             placeholderTextColor="#9E9E9E"
+            autoCapitalize="none"
           />
         </View>
 
@@ -309,6 +381,12 @@ const styles = StyleSheet.create({
     borderColor: '#B71C1C',
   },
 
+  initialsText: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+
   cameraIconContainer: {
     position: 'absolute',
     bottom: 15,
@@ -319,11 +397,27 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
 
+  nameContainer: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+
+  fullNameText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+
+  usernameDisplayText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+
   changePhotoText: {
     textAlign: "center",
-    marginBottom: 30,
-    fontSize: 14,
-    fontWeight: '600',
+    marginBottom: 20,
+    fontSize: 12,
+    fontWeight: '500',
   },
 
   infoContainer: {
